@@ -2,6 +2,8 @@
 
 An iPhone-first planner based on your paper card workflow:
 
+GitHub repo: [sachinai1981-web/focuscard-ios](https://github.com/sachinai1981-web/focuscard-ios)
+
 - tasks on the left
 - actual time used on the right rail
 - a larger color palette for time blocks
