@@ -84,6 +84,7 @@ export default function App() {
   const todayDate = getTodayDateKey();
   const { width } = useWindowDimensions();
   const isPhoneLayout = width < 520;
+  const isWorkspaceStacked = width < 360;
   const isStackedLayout = width < 720;
 
   const [planner, setPlanner] = useState<FocusPlannerStore>({
@@ -423,10 +424,17 @@ export default function App() {
         <View
           style={[
             styles.workspaceCard,
-            isStackedLayout && styles.workspaceCardStacked,
+            isWorkspaceStacked && styles.workspaceCardStacked,
+            isPhoneLayout && !isWorkspaceStacked && styles.workspaceCardPhoneInline,
           ]}
         >
-          <View style={[styles.leftPane, isStackedLayout && styles.leftPaneStacked]}>
+          <View
+            style={[
+              styles.leftPane,
+              isWorkspaceStacked && styles.leftPaneStacked,
+              isPhoneLayout && !isWorkspaceStacked && styles.leftPanePhoneInline,
+            ]}
+          >
             <View style={[styles.sectionHeader, isPhoneLayout && styles.sectionHeaderPhone]}>
               <View>
                 <Text style={styles.sectionEyebrow}>TODAY'S FOCUS</Text>
@@ -518,7 +526,13 @@ export default function App() {
             <Text style={styles.helperTextSecondary}>Saved locally by day.</Text>
           </View>
 
-          <View style={[styles.rightPane, isStackedLayout && styles.rightPaneStacked]}>
+          <View
+            style={[
+              styles.rightPane,
+              isWorkspaceStacked && styles.rightPaneStacked,
+              isPhoneLayout && !isWorkspaceStacked && styles.rightPanePhoneInline,
+            ]}
+          >
             <View style={styles.sectionHeader}>
               <View>
                 <Text style={styles.sectionEyebrow}>ACTUAL TIME</Text>
@@ -532,7 +546,13 @@ export default function App() {
                 selectedTaskId={selectedTaskId}
                 onSelectTask={setSelectedTaskId}
                 compact={isPhoneLayout}
-                railWidth={isPhoneLayout ? Math.min(width - 110, 264) : undefined}
+                railWidth={
+                  isPhoneLayout
+                    ? isWorkspaceStacked
+                      ? Math.min(width - 110, 264)
+                      : 84
+                    : undefined
+                }
               />
             </View>
           </View>
@@ -967,17 +987,28 @@ const styles = StyleSheet.create({
   workspaceCardStacked: {
     flexDirection: 'column',
   },
+  workspaceCardPhoneInline: {
+    gap: 10,
+    padding: 12,
+  },
   leftPane: {
     flex: 1,
   },
   leftPaneStacked: {
     width: '100%',
   },
+  leftPanePhoneInline: {
+    minWidth: 0,
+  },
   rightPane: {
     width: 154,
     paddingLeft: 14,
     borderLeftWidth: 2,
     borderLeftColor: palette.ink,
+  },
+  rightPanePhoneInline: {
+    width: 128,
+    paddingLeft: 10,
   },
   rightPaneStacked: {
     width: '100%',
