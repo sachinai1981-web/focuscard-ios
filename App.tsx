@@ -83,6 +83,7 @@ const legacyStorageKey = 'focuscard.tasks.v3';
 export default function App() {
   const todayDate = getTodayDateKey();
   const { width } = useWindowDimensions();
+  const isPhoneLayout = width < 520;
   const isStackedLayout = width < 720;
 
   const [planner, setPlanner] = useState<FocusPlannerStore>({
@@ -296,7 +297,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
-      <View style={styles.sysbar}>
+      <View style={[styles.sysbar, isPhoneLayout && styles.sysbarPhone]}>
         <View style={styles.brandDots}>
           <View style={[styles.brandDot, { backgroundColor: palette.red }]} />
           <View style={[styles.brandDot, { backgroundColor: palette.orange }]} />
@@ -317,48 +318,71 @@ export default function App() {
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isPhoneLayout && styles.scrollContentPhone,
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.heroCard}>
-          <View style={styles.heroHeader}>
+          <View
+            style={[
+              styles.heroHeader,
+              isPhoneLayout && styles.heroHeaderPhone,
+            ]}
+          >
             <View style={styles.heroCopy}>
               <Text style={styles.eyebrow}>FOCUS CARD</Text>
               <Text
                 style={[
                   styles.heroTitle,
                   isStackedLayout && styles.heroTitleCompact,
+                  isPhoneLayout && styles.heroTitlePhone,
                 ]}
               >
                 Track the day like a printed control sheet.
               </Text>
             </View>
 
-            <View style={styles.heroMetaColumn}>
-              <View style={styles.totalPill}>
+            <View
+              style={[
+                styles.heroMetaColumn,
+                isPhoneLayout && styles.heroMetaColumnPhone,
+              ]}
+            >
+              <View style={[styles.totalPill, isPhoneLayout && styles.totalPillPhone]}>
                 <Text style={styles.totalPillLabel}>TOTAL</Text>
-                <Text style={styles.totalPillValue}>{formatDuration(totalMinutes)}</Text>
+                <Text
+                  style={[
+                    styles.totalPillValue,
+                    isPhoneLayout && styles.totalPillValuePhone,
+                  ]}
+                >
+                  {formatDuration(totalMinutes)}
+                </Text>
               </View>
 
-              <View style={styles.dateCard}>
+              <View style={[styles.dateCard, isPhoneLayout && styles.dateCardPhone]}>
                 <Text style={styles.totalPillLabel}>DATE</Text>
-                <Text style={styles.dateValue}>{formatDisplayDate(planner.activeDate)}</Text>
+                <Text style={[styles.dateValue, isPhoneLayout && styles.dateValuePhone]}>
+                  {formatDisplayDate(planner.activeDate)}
+                </Text>
                 <View style={styles.dateControls}>
                   <Pressable
                     onPress={() => setActiveDate(shiftDateKey(planner.activeDate, -1))}
-                    style={styles.dateButton}
+                    style={[styles.dateButton, isPhoneLayout && styles.dateButtonPhone]}
                   >
                     <Text style={styles.dateButtonText}>PREV</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => setActiveDate(todayDate)}
-                    style={styles.dateButton}
+                    style={[styles.dateButton, isPhoneLayout && styles.dateButtonPhone]}
                   >
                     <Text style={styles.dateButtonText}>TODAY</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => setActiveDate(shiftDateKey(planner.activeDate, 1))}
-                    style={styles.dateButton}
+                    style={[styles.dateButton, isPhoneLayout && styles.dateButtonPhone]}
                   >
                     <Text style={styles.dateButtonText}>NEXT</Text>
                   </Pressable>
@@ -367,7 +391,7 @@ export default function App() {
             </View>
           </View>
 
-          <Text style={styles.heroText}>
+          <Text style={[styles.heroText, isPhoneLayout && styles.heroTextPhone]}>
             Write the task on the left. Track the actual time on the right.
             Circle at both ends means done today. A triangle at the end means
             it rolls into tomorrow. The black line shows the task path. The
@@ -403,7 +427,7 @@ export default function App() {
           ]}
         >
           <View style={[styles.leftPane, isStackedLayout && styles.leftPaneStacked]}>
-            <View style={styles.sectionHeader}>
+            <View style={[styles.sectionHeader, isPhoneLayout && styles.sectionHeaderPhone]}>
               <View>
                 <Text style={styles.sectionEyebrow}>TODAY'S FOCUS</Text>
                 <Text style={styles.sectionTitle}>Task list</Text>
@@ -428,7 +452,7 @@ export default function App() {
                       isSelected && styles.taskCardSelected,
                     ]}
                   >
-                    <View style={styles.taskRowTop}>
+                    <View style={[styles.taskRowTop, isPhoneLayout && styles.taskRowTopPhone]}>
                       <View
                         style={[
                           styles.numberBubble,
@@ -449,8 +473,10 @@ export default function App() {
                       </View>
 
                       <View style={styles.taskCopy}>
-                        <Text style={styles.taskTitle}>{task.title}</Text>
-                        <Text style={styles.taskMeta}>
+                        <Text style={[styles.taskTitle, isPhoneLayout && styles.taskTitlePhone]}>
+                          {task.title}
+                        </Text>
+                        <Text style={[styles.taskMeta, isPhoneLayout && styles.taskMetaPhone]}>
                           {formatClockTime(task.start)} - {formatClockTime(task.end)} ·{' '}
                           {formatDuration(getDurationMinutes(task))}
                         </Text>
@@ -471,7 +497,7 @@ export default function App() {
                         </Text>
                       </View>
 
-                      <View style={styles.statusRow}>
+                      <View style={[styles.statusRow, isPhoneLayout && styles.statusRowPhone]}>
                         <Text style={styles.statusText}>
                           {getEndStateLabel(task.endState)}
                         </Text>
@@ -500,11 +526,15 @@ export default function App() {
               </View>
             </View>
 
-            <TimeRail
-              tasks={orderedTasks}
-              selectedTaskId={selectedTaskId}
-              onSelectTask={setSelectedTaskId}
-            />
+            <View style={[styles.railStage, isPhoneLayout && styles.railStagePhone]}>
+              <TimeRail
+                tasks={orderedTasks}
+                selectedTaskId={selectedTaskId}
+                onSelectTask={setSelectedTaskId}
+                compact={isPhoneLayout}
+                railWidth={isPhoneLayout ? Math.min(width - 110, 264) : undefined}
+              />
+            </View>
           </View>
         </View>
 
@@ -517,14 +547,14 @@ export default function App() {
           <View style={[styles.notesPane, isStackedLayout && styles.notesPaneStacked]}>
             <Text style={styles.sectionEyebrow}>NOTES</Text>
             <Text style={styles.sectionTitle}>Today&apos;s notes</Text>
-            <Text style={styles.notesMeta}>
+            <Text style={[styles.notesMeta, isPhoneLayout && styles.notesMetaPhone]}>
               {formatDisplayDate(planner.activeDate)} · {tasks.length} tasks
             </Text>
             <TextInput
               multiline
               placeholder="Log what happened today, what moved, what mattered."
               placeholderTextColor={palette.inkMute}
-              style={styles.notesInput}
+              style={[styles.notesInput, isPhoneLayout && styles.notesInputPhone]}
               value={notes}
               onChangeText={updateNotes}
               textAlignVertical="top"
@@ -539,11 +569,16 @@ export default function App() {
           >
             <Text style={styles.sectionEyebrow}>PREVIOUS DAY</Text>
             <Text style={styles.sectionTitle}>Yesterday&apos;s log</Text>
-            <Text style={styles.notesMeta}>
+            <Text style={[styles.notesMeta, isPhoneLayout && styles.notesMetaPhone]}>
               {formatDisplayDate(previousDate)} · {previousRecord.tasks.length} tasks
             </Text>
             <View style={styles.previousNotesCard}>
-              <Text style={styles.previousNotesText}>
+              <Text
+                style={[
+                  styles.previousNotesText,
+                  isPhoneLayout && styles.previousNotesTextPhone,
+                ]}
+              >
                 {previousRecord.notes.trim() !== ''
                   ? previousRecord.notes
                   : 'No note logged for the previous day yet.'}
@@ -721,6 +756,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: palette.ink,
   },
+  sysbarPhone: {
+    flexWrap: 'wrap',
+    rowGap: 8,
+    columnGap: 12,
+    paddingVertical: 12,
+  },
   brandDots: {
     flexDirection: 'row',
     gap: 4,
@@ -752,6 +793,10 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
     gap: 20,
   },
+  scrollContentPhone: {
+    paddingHorizontal: 12,
+    gap: 16,
+  },
   heroCard: {
     paddingBottom: 18,
     borderBottomWidth: 2,
@@ -764,6 +809,10 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 14,
   },
+  heroHeaderPhone: {
+    flexDirection: 'column',
+    gap: 16,
+  },
   heroCopy: {
     flex: 1,
     minWidth: 0,
@@ -771,6 +820,9 @@ const styles = StyleSheet.create({
   heroMetaColumn: {
     width: 228,
     gap: 12,
+  },
+  heroMetaColumnPhone: {
+    width: '100%',
   },
   eyebrow: {
     fontFamily: fonts.mono,
@@ -793,6 +845,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 28,
   },
+  heroTitlePhone: {
+    maxWidth: undefined,
+    fontSize: 24,
+    lineHeight: 24,
+    letterSpacing: -0.8,
+  },
   totalPill: {
     borderWidth: 2,
     borderColor: palette.ink,
@@ -800,6 +858,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: palette.paper2,
     minWidth: 108,
+  },
+  totalPillPhone: {
+    width: '100%',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   totalPillLabel: {
     fontFamily: fonts.mono,
@@ -815,6 +878,10 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     color: palette.ink,
   },
+  totalPillValuePhone: {
+    fontSize: 22,
+    lineHeight: 22,
+  },
   dateCard: {
     borderWidth: 1,
     borderColor: palette.hairline,
@@ -822,12 +889,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
+  dateCardPhone: {
+    width: '100%',
+    paddingHorizontal: 14,
+  },
   dateValue: {
     fontFamily: fonts.ui,
     fontSize: 18,
     lineHeight: 24,
     color: palette.ink,
     marginBottom: 12,
+  },
+  dateValuePhone: {
+    fontSize: 16,
+    lineHeight: 22,
   },
   dateControls: {
     flexDirection: 'row',
@@ -840,6 +915,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     backgroundColor: palette.paper,
+  },
+  dateButtonPhone: {
+    flexGrow: 1,
+    alignItems: 'center',
   },
   dateButtonText: {
     fontFamily: fonts.mono,
@@ -854,6 +933,10 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     color: palette.ink,
     marginBottom: 16,
+  },
+  heroTextPhone: {
+    fontSize: 14,
+    lineHeight: 21,
   },
   legendRow: {
     flexDirection: 'row',
@@ -904,12 +987,22 @@ const styles = StyleSheet.create({
     borderTopWidth: 2,
     borderTopColor: palette.ink,
   },
+  railStage: {
+    alignItems: 'flex-start',
+  },
+  railStagePhone: {
+    alignItems: 'center',
+  },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 14,
     gap: 10,
+  },
+  sectionHeaderPhone: {
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
   },
   sectionEyebrow: {
     fontFamily: fonts.mono,
@@ -955,6 +1048,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
+  taskRowTopPhone: {
+    alignItems: 'flex-start',
+  },
   numberBubble: {
     width: 42,
     height: 42,
@@ -979,11 +1075,18 @@ const styles = StyleSheet.create({
     color: palette.ink,
     marginBottom: 4,
   },
+  taskTitlePhone: {
+    fontSize: 16,
+  },
   taskMeta: {
     fontFamily: fonts.mono,
     fontSize: 13,
     letterSpacing: 1.2,
     color: palette.inkMute,
+  },
+  taskMetaPhone: {
+    fontSize: 12,
+    lineHeight: 18,
   },
   taskFooter: {
     marginTop: 14,
@@ -1004,6 +1107,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  statusRowPhone: {
+    flexWrap: 'wrap',
+    rowGap: 8,
   },
   statusText: {
     fontFamily: fonts.ui,
@@ -1071,6 +1178,10 @@ const styles = StyleSheet.create({
     color: palette.inkMute,
     marginBottom: 10,
   },
+  notesMetaPhone: {
+    fontSize: 10,
+    lineHeight: 16,
+  },
   notesInput: {
     minHeight: 220,
     borderWidth: 2,
@@ -1082,6 +1193,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: palette.ink,
+  },
+  notesInputPhone: {
+    minHeight: 180,
+    fontSize: 15,
+    lineHeight: 22,
   },
   previousNotesCard: {
     minHeight: 220,
@@ -1096,5 +1212,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: palette.ink,
+  },
+  previousNotesTextPhone: {
+    fontSize: 15,
+    lineHeight: 22,
   },
 });

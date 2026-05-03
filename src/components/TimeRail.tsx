@@ -15,27 +15,44 @@ type TimeRailProps = {
   tasks: FocusTask[];
   selectedTaskId: string | null;
   onSelectTask: (taskId: string) => void;
+  compact?: boolean;
+  railWidth?: number;
 };
-
-const labelWidth = 26;
-const railWidth = 120;
-const rowHeight = 42;
-const headerHeight = 44;
-const barHeight = 16;
-const lineHeight = 4;
 
 export function TimeRail({
   tasks,
   selectedTaskId,
   onSelectTask,
+  compact = false,
+  railWidth: railWidthOverride,
 }: TimeRailProps) {
+  const labelWidth = compact ? 30 : 26;
+  const railWidth = railWidthOverride ?? (compact ? 248 : 120);
+  const rowHeight = compact ? 34 : 42;
+  const headerHeight = compact ? 40 : 44;
+  const barHeight = compact ? 14 : 16;
+  const lineHeight = 4;
+  const markerSize = compact ? 26 : 28;
+  const triangleWidth = compact ? 22 : 24;
+  const triangleHeight = compact ? 28 : 30;
+
   return (
-    <View style={styles.wrap}>
-      <View style={styles.header}>
+    <View style={[styles.wrap, { width: labelWidth + railWidth }]}>
+      <View style={[styles.header, { height: headerHeight, paddingLeft: labelWidth }]}>
         <Text style={styles.headerLabel}>MM</Text>
         <View style={styles.minuteHeader}>
           {['00', '15', '30', '45', '60'].map((minute) => (
-            <Text key={minute} style={styles.minuteLabel}>
+            <Text
+              key={minute}
+              style={[
+                styles.minuteLabel,
+                {
+                  width: railWidth / 4,
+                  marginLeft: compact ? -2 : -6,
+                  fontSize: compact ? 10 : 11,
+                },
+              ]}
+            >
               {minute}
             </Text>
           ))}
@@ -43,16 +60,31 @@ export function TimeRail({
       </View>
 
       <View style={styles.gridWrap}>
-        <View style={styles.rows}>
+        <View style={[styles.rows, { width: labelWidth + railWidth }]}>
           {Array.from({ length: TIMELINE_HOUR_COUNT }, (_, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={styles.hourLabel}>{formatHourLabel(index)}</Text>
-              <View style={styles.railRow}>
+            <View key={index} style={[styles.row, { height: rowHeight }]}>
+              <Text
+                style={[
+                  styles.hourLabel,
+                  {
+                    width: labelWidth,
+                    fontSize: compact ? 12 : 14,
+                    paddingTop: compact ? 9 : 12,
+                  },
+                ]}
+              >
+                {formatHourLabel(index)}
+              </Text>
+              <View style={[styles.railRow, { width: railWidth }]}>
                 {Array.from({ length: 4 }, (_, column) => (
                   <View
                     key={`${index}-${column}`}
                     style={[
                       styles.quarterCell,
+                      {
+                        width: railWidth / 4,
+                        height: rowHeight,
+                      },
                       column === 3 && styles.lastQuarterCell,
                     ]}
                   />
@@ -62,7 +94,16 @@ export function TimeRail({
           ))}
         </View>
 
-        <View style={styles.overlay} pointerEvents="box-none">
+        <View
+          style={[
+            styles.overlay,
+            {
+              width: labelWidth + railWidth,
+              height: rowHeight * TIMELINE_HOUR_COUNT,
+            },
+          ]}
+          pointerEvents="box-none"
+        >
           {tasks.map((task, index) => {
             const colors = taskPalette[task.color];
             const segments = buildSegments(task);
@@ -85,7 +126,7 @@ export function TimeRail({
                       onPress={() => onSelectTask(task.id)}
                       style={[
                         styles.segment,
-                      {
+                        {
                           top:
                             segment.hourIndex * rowHeight +
                             (rowHeight - barHeight) / 2,
@@ -97,6 +138,7 @@ export function TimeRail({
                             railWidth,
                           backgroundColor: colors.fill,
                           borderColor: colors.strong,
+                          height: barHeight,
                         },
                       ]}
                     />
@@ -114,6 +156,7 @@ export function TimeRail({
                           width:
                             ((segment.endMinute - segment.startMinute) / 60) *
                             railWidth,
+                          height: lineHeight,
                         },
                       ]}
                     />
@@ -125,10 +168,12 @@ export function TimeRail({
                   style={[
                     styles.startMarker,
                     {
-                      top: startY - 14,
-                      left: startX - 12,
+                      top: startY - markerSize / 2,
+                      left: startX - markerSize / 2 + 2,
                       borderColor: colors.strong,
                       backgroundColor: palette.paper,
+                      width: markerSize,
+                      height: markerSize,
                     },
                   ]}
                 >
@@ -137,6 +182,7 @@ export function TimeRail({
                       styles.markerText,
                       { color: isSelected ? colors.text : colors.strong },
                       { color: colors.strong },
+                      compact && styles.markerTextCompact,
                     ]}
                   >
                     {index + 1}
@@ -149,10 +195,12 @@ export function TimeRail({
                     style={[
                       styles.endCircle,
                       {
-                        top: endY - 14,
-                        left: endX - 14,
+                        top: endY - markerSize / 2,
+                        left: endX - markerSize / 2,
                         borderColor: colors.strong,
                         backgroundColor: palette.paper,
+                        width: markerSize,
+                        height: markerSize,
                       },
                     ]}
                   >
@@ -160,6 +208,7 @@ export function TimeRail({
                       style={[
                         styles.markerText,
                         { color: colors.strong },
+                        compact && styles.markerTextCompact,
                       ]}
                     >
                       {index + 1}
@@ -171,8 +220,10 @@ export function TimeRail({
                     style={[
                       styles.endTriangleWrap,
                       {
-                        top: endY - 15,
-                        left: endX - 8,
+                        top: endY - triangleHeight / 2,
+                        left: endX - triangleWidth / 3,
+                        width: triangleWidth,
+                        height: triangleHeight,
                       },
                     ]}
                   >
@@ -180,11 +231,19 @@ export function TimeRail({
                       style={[
                         styles.endTriangleGlyph,
                         { color: palette.ink },
+                        compact && styles.endTriangleGlyphCompact,
                       ]}
                     >
                       ▶
                     </Text>
-                    <Text style={styles.endTriangleText}>{index + 1}</Text>
+                    <Text
+                      style={[
+                        styles.endTriangleText,
+                        compact && styles.endTriangleTextCompact,
+                      ]}
+                    >
+                      {index + 1}
+                    </Text>
                   </Pressable>
                 )}
               </View>
@@ -193,7 +252,15 @@ export function TimeRail({
         </View>
       </View>
 
-      <View style={styles.legend}>
+      <View
+        style={[
+          styles.legend,
+          {
+            paddingLeft: compact ? 0 : labelWidth,
+            justifyContent: compact ? 'space-between' : 'flex-start',
+          },
+        ]}
+      >
         <View style={styles.legendRow}>
           <View style={styles.legendCircle} />
           <Text style={styles.legendText}>Start</Text>
@@ -209,13 +276,21 @@ export function TimeRail({
       </View>
 
       {selectedTaskId ? (
-        <View style={styles.selectionCard}>
+        <View
+          style={[
+            styles.selectionCard,
+            {
+              marginLeft: compact ? 0 : labelWidth,
+              width: compact ? labelWidth + railWidth : railWidth,
+            },
+          ]}
+        >
           {tasks
             .filter((task) => task.id === selectedTaskId)
             .map((task, index) => (
               <View key={task.id}>
                 <Text style={styles.selectionTitle}>{task.title}</Text>
-                <Text style={styles.selectionMeta}>
+                <Text style={[styles.selectionMeta, compact && styles.selectionMetaCompact]}>
                   {formatClockTime(task.start)} - {formatClockTime(task.end)} ·{' '}
                   {formatDuration(getDurationMinutes(task))}
                 </Text>
@@ -233,13 +308,8 @@ export function TimeRail({
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    width: labelWidth + railWidth,
-  },
-  header: {
-    height: headerHeight,
-    paddingLeft: labelWidth,
-  },
+  wrap: {},
+  header: {},
   headerLabel: {
     fontFamily: fonts.mono,
     fontSize: 11,
@@ -254,8 +324,6 @@ const styles = StyleSheet.create({
   },
   minuteLabel: {
     fontFamily: fonts.mono,
-    width: railWidth / 4,
-    marginLeft: -6,
     fontSize: 11,
     letterSpacing: 1.2,
     color: palette.inkMute,
@@ -263,22 +331,14 @@ const styles = StyleSheet.create({
   gridWrap: {
     position: 'relative',
   },
-  rows: {
-    width: labelWidth + railWidth,
-  },
-  row: {
-    height: rowHeight,
-    flexDirection: 'row',
-  },
+  rows: {},
+  row: { flexDirection: 'row' },
   hourLabel: {
     fontFamily: fonts.mono,
-    width: labelWidth,
     fontSize: 14,
     color: palette.inkMute,
-    paddingTop: 12,
   },
   railRow: {
-    width: railWidth,
     flexDirection: 'row',
     borderTopWidth: 1,
     borderLeftWidth: 1,
@@ -286,8 +346,6 @@ const styles = StyleSheet.create({
     borderColor: palette.ink,
   },
   quarterCell: {
-    width: railWidth / 4,
-    height: rowHeight,
     borderRightWidth: 1,
     borderColor: palette.hairline,
   },
@@ -298,23 +356,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: labelWidth + railWidth,
-    height: rowHeight * TIMELINE_HOUR_COUNT,
   },
   segment: {
     position: 'absolute',
-    height: barHeight,
     borderWidth: 1,
   },
   connectorLine: {
     position: 'absolute',
-    height: lineHeight,
     backgroundColor: palette.ink,
   },
   startMarker: {
     position: 'absolute',
-    width: 28,
-    height: 28,
     borderRadius: 999,
     borderWidth: 2,
     alignItems: 'center',
@@ -322,8 +374,6 @@ const styles = StyleSheet.create({
   },
   endCircle: {
     position: 'absolute',
-    width: 28,
-    height: 28,
     borderRadius: 999,
     borderWidth: 2,
     alignItems: 'center',
@@ -331,14 +381,16 @@ const styles = StyleSheet.create({
   },
   endTriangleWrap: {
     position: 'absolute',
-    width: 24,
-    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
   endTriangleGlyph: {
     fontSize: 28,
     lineHeight: 28,
+  },
+  endTriangleGlyphCompact: {
+    fontSize: 24,
+    lineHeight: 24,
   },
   endTriangleText: {
     position: 'absolute',
@@ -348,17 +400,24 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '800',
   },
+  endTriangleTextCompact: {
+    left: 6,
+    top: 7,
+    fontSize: 8,
+  },
   markerText: {
     fontFamily: fonts.mono,
     fontSize: 11,
     letterSpacing: 1.2,
+  },
+  markerTextCompact: {
+    fontSize: 10,
   },
   legend: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
     marginTop: 12,
-    paddingLeft: labelWidth,
   },
   legendRow: {
     flexDirection: 'row',
@@ -399,7 +458,6 @@ const styles = StyleSheet.create({
   },
   selectionCard: {
     marginTop: 12,
-    marginLeft: labelWidth,
     borderWidth: 1,
     borderColor: palette.hairline,
     backgroundColor: palette.paper2,
@@ -418,6 +476,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 1.2,
     color: palette.inkMute,
+  },
+  selectionMetaCompact: {
+    fontSize: 11,
+    lineHeight: 18,
   },
   selectionState: {
     marginTop: 4,
