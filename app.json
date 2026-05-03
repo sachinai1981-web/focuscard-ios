@@ -3,6 +3,9 @@
     "name": "Focus Card",
     "slug": "focuscard-ios",
     "version": "1.0.0",
+    "experiments": {
+      "baseUrl": "/focuscard-ios"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,7 +27,8 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "output": "single"
     }
   }
 }

@@ -2,6 +2,8 @@
 
 An iPhone-first planner based on your paper card workflow:
 
+Public app URL: [sachinai1981-web.github.io/focuscard-ios](https://sachinai1981-web.github.io/focuscard-ios/)
+
 GitHub repo: [sachinai1981-web/focuscard-ios](https://github.com/sachinai1981-web/focuscard-ios)
 
 - tasks on the left
